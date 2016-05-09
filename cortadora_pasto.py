@@ -18,21 +18,31 @@ pantalla = pygame.display.set_mode((320, 240))
 fps = pygame.time.Clock()
 obstaculos = [] # Contenedor de obstaculos
 pastos = [] # Contenedor de pasto
-cortadora = Cortadora() # Crear una cortadora
+mapa = []
 
 
+
+aux = 0
 x = y = 0
-for row in myconstants.ENTORNO1:
+
+for row in myconstants.ENTORNO2:
+  mapa.append([])
   for col in row:
     if col == "W":
-        obstaculos.append(Obstaculo((x, y)))
+      mapa[aux].append(Obstaculo((x, y)))
+      obstaculos.append(Obstaculo((x, y)))
     if col == "P":
-        pastos.append(Pasto((x, y)))
+      mapa[aux].append(Pasto((x, y)))
+      pastos.append(Pasto((x, y)))
     x += 16
+
   y += 16
   x = 0
+  aux +=1
 
 running = True
+
+cortadora = Cortadora(mapa) # Crear una cortadora
 
 while running:
   fps.tick(60)
@@ -44,7 +54,14 @@ while running:
         running = False
   
   # Mover de forma aleatoria
-  cortadora.mover(obstaculos, pastos, pantalla)
+  # cortadora.mover(obstaculos, pastos, pantalla)
+  if cortadora.tiene_posicion_inicial == False:
+    cortadora.detectar_posicion_inicial()
+
+  if cortadora.busca_contorno == True:
+    cortadora.recorrer_contorno()
+
+  cortadora.mover()
 
   # Dibujar pantalla
   pantalla.fill((0, 0, 0))
