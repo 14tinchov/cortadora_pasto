@@ -55,11 +55,12 @@ while running:
   
   # Mover de forma aleatoria
   # cortadora.mover(obstaculos, pastos, pantalla)
+  if cortadora.busca_contorno == True:
+    cortadora.recorrer_contorno()
+
   if cortadora.tiene_posicion_inicial == False:
     cortadora.detectar_posicion_inicial()
 
-  if cortadora.busca_contorno == True:
-    cortadora.recorrer_contorno()
 
   cortadora.mover()
 
@@ -67,12 +68,18 @@ while running:
   pantalla.fill((0, 0, 0))
 
   for obs in obstaculos:
+    if cortadora.rect.colliderect(obs.rect) and cortadora.motor == True:
+      obs.tocado = True
+
     if obs.tocado == True:
       pygame.draw.rect(pantalla, (200, 100, 100), obs.rect)
     else:
       pygame.draw.rect(pantalla, (255, 255, 255), obs.rect)
 
   for pasto in pastos:
+    if pasto.rect.colliderect(cortadora.rect) and pasto.tocado == False  and cortadora.motor == True:
+      pasto.tocado = True
+
     if pasto.tocado == True:
       pygame.draw.rect(pantalla, (000, 255, 000), pasto.rect)
     else:
@@ -80,4 +87,3 @@ while running:
 
   pygame.draw.rect(pantalla, (0, 96, 96), cortadora.rect)
   pygame.display.flip()
-
