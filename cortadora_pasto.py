@@ -25,7 +25,7 @@ mapa = []
 aux = 0
 x = y = 0
 
-for row in myconstants.ENTORNO2:
+for row in myconstants.ENTORNO4:
   mapa.append([])
   for col in row:
     if col == "W":
@@ -55,11 +55,13 @@ while running:
   
   # Mover de forma aleatoria
   # cortadora.mover(obstaculos, pastos, pantalla)
-  if cortadora.busca_contorno == True:
-    cortadora.recorrer_contorno()
-
+  
   if cortadora.tiene_posicion_inicial == False:
     cortadora.detectar_posicion_inicial()
+  else:
+    if cortadora.busca_contorno == True:
+      cortadora.recorrer_contorno()
+
 
 
   cortadora.mover()
@@ -87,3 +89,4 @@ while running:
 
   pygame.draw.rect(pantalla, (0, 96, 96), cortadora.rect)
   pygame.display.flip()
+  cortadora.poner_pausa()

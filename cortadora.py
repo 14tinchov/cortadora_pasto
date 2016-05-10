@@ -1,4 +1,5 @@
 import pygame
+import time
 from cuadrante import Cuadrante
 from random import randint
 
@@ -13,12 +14,19 @@ class Cortadora(object):
 
     self.motor = False # esto sirve para pintar los pastos tocados
     self.velocidad = 2
+    self.pausa = True
 
 
     # si esta en false quiere decir q la cortadora se esta moviendo por lo tanto no busca
     # una nueva posicion
     self.buscar_nueva_pos = True
     
+    #Para completar la regla de la mano izquierda
+    self.encontro_pared_derecha = False
+    self.encontro_pared_izquierda = False
+    self.encontro_pared_arriba = False
+    self.encontro_pared_abajo = False
+
     # sirve para armar nuestro propio sistemas de cordenadas
     self.nueva_posicion_x = 0
     self.nueva_posicion_y = 0
@@ -36,6 +44,11 @@ class Cortadora(object):
     self.posicion_destino_y = y
 
     self.rect = pygame.Rect(x, y, 16, 16)
+
+  def poner_pausa(self):
+    if self.pausa == True:
+      self.pausa = False
+      time.sleep(2)
 
   def mover(self):
 
@@ -63,14 +76,14 @@ class Cortadora(object):
       self.buscar_nueva_pos = False
 
       if self.detectar_obstaculo("derecha") and self.detectar_obstaculo('abajo'):
-        print "no moverse"
+        #print "no moverse"
         self.tiene_posicion_inicial = True
         self.busca_contorno = True
         self.motor = True
         self.cargar_cuadrante(self.nueva_posicion_x, self.nueva_posicion_y)
         self.imprimir_cuadrantes()
       else:
-        print "moverse"
+        #print "moverse"
         if self.detectar_obstaculo("derecha"):
           nueva_pos = self.moverse_abajo()
         else:
@@ -136,27 +149,66 @@ class Cortadora(object):
       self.buscar_nueva_pos = False
 
       if self.detectar_obstaculo('derecha') == True and self.detectar_obstaculo('abajo') == False:
-        print "abajo"
+        print "if abajo"
         nueva_pos = self.moverse_abajo()
         self.posicion_destino_y = nueva_pos.rect.top
+        self.encontro_pared_derecha = True
+        self.encontro_pared_arriba = False
         return
+      else:
+        if self.detectar_obstaculo('derecha') == False  and self.encontro_pared_derecha == True:
+          print "else derecha"      
+          nueva_pos = self.moverse_derecha()
+          self.posicion_destino_x = nueva_pos.rect.left
+          self.encontro_pared_derecha = False
+          return
+
       if self.detectar_obstaculo('abajo') == True  and self.detectar_obstaculo('izquierda') == False:
-        print "izquierda"
+        print "if izquierda"
         nueva_pos = self.moverse_izquierda()
         self.posicion_destino_x = nueva_pos.rect.left
+        self.encontro_pared_abajo = True
+        self.encontro_pared_derecha = False
         self.cargar_cuadrante(self.nueva_posicion_x, self.nueva_posicion_y)
-        self.imprimir_cuadrantes()
+        #self.imprimir_cuadrantes()
         return
+      else:
+        if self.detectar_obstaculo('abajo') == False  and self.encontro_pared_abajo == True:
+          print "else abajo"      
+          nueva_pos = self.moverse_abajo()
+          self.posicion_destino_y = nueva_pos.rect.top
+          self.encontro_pared_abajo = False
+          return
+
       if self.detectar_obstaculo('izquierda') == True  and self.detectar_obstaculo('arriba') == False:
-        print "arriba"
+        print "if arriba"
         nueva_pos = self.moverse_arriba()
         self.posicion_destino_y = nueva_pos.rect.top
+        self.encontro_pared_izquierda = True
+        self.encontro_pared_abajo = False
         return
+      else:
+        if self.detectar_obstaculo('izquierda') == False  and self.encontro_pared_izquierda == True:
+          print "else izquierda"      
+          nueva_pos = self.moverse_izquierda()
+          self.posicion_destino_x = nueva_pos.rect.left
+          self.encontro_pared_izquierda = False
+          return
+
       if self.detectar_obstaculo('arriba') == True  and self.detectar_obstaculo('derecha') == False:
-        print "derecha"      
+        print "if derecha"      
         nueva_pos = self.moverse_derecha()
         self.posicion_destino_x = nueva_pos.rect.left
+        self.encontro_pared_arriba = True
+        self.encontro_pared_izquierda = False
         return
+      else:
+        if self.detectar_obstaculo('arriba') == False  and self.encontro_pared_arriba == True:
+          print "else arriba"      
+          nueva_pos = self.moverse_arriba()
+          self.posicion_destino_y = nueva_pos.rect.top
+          self.encontro_pared_arriba = False
+          return
 
   def cargar_cuadrante(self, pos_x, pos_y):
     obs_arr = self.detectar_arriba()
