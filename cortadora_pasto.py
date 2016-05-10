@@ -21,7 +21,6 @@ pastos = [] # Contenedor de pasto
 mapa = []
 
 
-
 aux = 0
 x = y = 0
 
@@ -48,21 +47,19 @@ while running:
   fps.tick(60)
   
   for e in pygame.event.get():
-      if e.type == pygame.QUIT:
-        running = False
-      if e.type == pygame.KEYDOWN and e.key == pygame.K_ESCAPE:
-        running = False
+    if e.type == pygame.QUIT:
+      running = False
+    if e.type == pygame.KEYDOWN and e.key == pygame.K_ESCAPE:
+      running = False
   
-  # Mover de forma aleatoria
-  # cortadora.mover(obstaculos, pastos, pantalla)
-  
+
   if cortadora.tiene_posicion_inicial == False:
     cortadora.detectar_posicion_inicial()
   else:
     if cortadora.busca_contorno == True:
       cortadora.recorrer_contorno()
-
-
+    if cortadora.esta_en_posicion_inicial() == True:
+      cortadora.buscar_nueva_posicion_inicial()
 
   cortadora.mover()
 
