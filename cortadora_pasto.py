@@ -25,7 +25,7 @@ mapa = []
 aux = 0
 x = y = 0
 
-for row in myconstants.ENTORNO4:
+for row in myconstants.ENTORNO3:
   mapa.append([])
   for col in row:
     if col == "W":
