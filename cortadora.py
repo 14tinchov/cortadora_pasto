@@ -13,7 +13,7 @@ class Cortadora(object):
     self.cuadrantes = []
 
     self.motor = False # esto sirve para pintar los pastos tocados
-    self.velocidad = 2
+    self.velocidad = 1
     self.pausa = True
 
 
@@ -35,6 +35,17 @@ class Cortadora(object):
     self.y_inicial = 0
     self.posicion_actual_x = 0
     self.posicion_actual_y = 0
+
+    self.cuadrante_analizado_abajo = False
+    self.cuadrante_analizado_izquierda = False
+    self.cuadrante_analizado_derecha = False
+    self.cuadrante_analizado_arriba = False
+
+    #Para hacer el recorrido interno
+    self.x_minimo = 0
+    self.x_maximo = 0
+    self.y_minimo = 0
+    self.y_maximo = 0
 
     # sirve para tirar una posicion aleatoria en el entorno
     self.posicion_x = randint(1, 18)
@@ -156,16 +167,19 @@ class Cortadora(object):
     return self.mapa[self.posicion_y][self.posicion_x]
 
 
-  def recorrer_contorno(self):    
+  def recorrer_contorno(self):
     if self.buscar_nueva_pos == True:
-      self.buscar_nueva_pos = False
+      self.buscar_nueva_pos = False    
 
       if self.detectar_obstaculo('derecha') == True and self.detectar_obstaculo('abajo') == False:
         #print "if abajo"
         nueva_pos = self.moverse_abajo()
-        self.posicion_destino_y = nueva_pos.rect.top
+        self.posicion_destino_y = nueva_pos.rect.top        
+        self.analizar_cuadrante('abajo')        
         self.encontro_pared_derecha = True
         self.encontro_pared_arriba = False
+        #self.comparar_coordenadas(self.posicion_actual_x,self.posicion_actual_y)
+        self.cargar_cuadrante(self.nueva_posicion_x, self.nueva_posicion_y)
         return
       else:
         if self.detectar_obstaculo('derecha') == False  and self.encontro_pared_derecha == True:
@@ -173,6 +187,8 @@ class Cortadora(object):
           nueva_pos = self.moverse_derecha()
           self.posicion_destino_x = nueva_pos.rect.left
           self.encontro_pared_derecha = False
+          #self.comparar_coordenadas(self.posicion_actual_x,self.posicion_actual_y)
+          self.cargar_cuadrante(self.nueva_posicion_x, self.nueva_posicion_y)
           return
 
       if self.detectar_obstaculo('abajo') == True  and self.detectar_obstaculo('izquierda') == False:
@@ -181,6 +197,7 @@ class Cortadora(object):
         self.posicion_destino_x = nueva_pos.rect.left
         self.encontro_pared_abajo = True
         self.encontro_pared_derecha = False
+        #self.comparar_coordenadas(self.posicion_actual_x,self.posicion_actual_y)
         self.cargar_cuadrante(self.nueva_posicion_x, self.nueva_posicion_y)
         #self.imprimir_cuadrantes()
         return
@@ -190,6 +207,8 @@ class Cortadora(object):
           nueva_pos = self.moverse_abajo()
           self.posicion_destino_y = nueva_pos.rect.top
           self.encontro_pared_abajo = False
+          #self.comparar_coordenadas(self.posicion_actual_x,self.posicion_actual_y)
+          self.cargar_cuadrante(self.nueva_posicion_x, self.nueva_posicion_y)
           return
 
       if self.detectar_obstaculo('izquierda') == True  and self.detectar_obstaculo('arriba') == False:
@@ -198,6 +217,8 @@ class Cortadora(object):
         self.posicion_destino_y = nueva_pos.rect.top
         self.encontro_pared_izquierda = True
         self.encontro_pared_abajo = False
+        #self.comparar_coordenadas(self.posicion_actual_x,self.posicion_actual_y)
+        self.cargar_cuadrante(self.nueva_posicion_x, self.nueva_posicion_y)
         return
       else:
         if self.detectar_obstaculo('izquierda') == False  and self.encontro_pared_izquierda == True:
@@ -205,6 +226,8 @@ class Cortadora(object):
           nueva_pos = self.moverse_izquierda()
           self.posicion_destino_x = nueva_pos.rect.left
           self.encontro_pared_izquierda = False
+          #self.comparar_coordenadas(self.posicion_actual_x,self.posicion_actual_y)
+          self.cargar_cuadrante(self.nueva_posicion_x, self.nueva_posicion_y)
           return
 
       if self.detectar_obstaculo('arriba') == True  and self.detectar_obstaculo('derecha') == False:
@@ -213,6 +236,8 @@ class Cortadora(object):
         self.posicion_destino_x = nueva_pos.rect.left
         self.encontro_pared_arriba = True
         self.encontro_pared_izquierda = False
+        #self.comparar_coordenadas(self.posicion_actual_x,self.posicion_actual_y)
+        self.cargar_cuadrante(self.nueva_posicion_x, self.nueva_posicion_y)
         return
       else:
         if self.detectar_obstaculo('arriba') == False  and self.encontro_pared_arriba == True:
@@ -220,6 +245,8 @@ class Cortadora(object):
           nueva_pos = self.moverse_arriba()
           self.posicion_destino_y = nueva_pos.rect.top
           self.encontro_pared_arriba = False
+          #self.comparar_coordenadas(self.posicion_actual_x,self.posicion_actual_y)
+          self.cargar_cuadrante(self.nueva_posicion_x, self.nueva_posicion_y)
           return
 
   def cargar_cuadrante(self, pos_x, pos_y):
@@ -232,10 +259,10 @@ class Cortadora(object):
 
   def imprimir_cuadrantes(self):
     pass
-    # for i in range(0, len(self.cuadrantes)):
+     #for i in range(0, len(self.cuadrantes)):
 
-      # print "Cuadrante %d:" % i
-      # print "Pos x: %d, Pos y: %d" %(self.cuadrantes[i].posicion_x, self.cuadrantes[i].posicion_y)
+       #print "Cuadrante %d:" % i
+       #print "Pos x: %d, Pos y: %d" %(self.cuadrantes[i].posicion_x, self.cuadrantes[i].posicion_y)
 
   def esta_en_posicion_inicial(self):
     if self.x_inicial == self.posicion_actual_x and self.y_inicial == self.posicion_actual_y:
@@ -243,8 +270,137 @@ class Cortadora(object):
     else:
       return False
 
-  def buscar_nueva_posicion_inicial(self):
-    print "paso"
+  def analizar_cuadrante(self, direc):
+    return {
+        'abajo': self.analizar_abajo(),
+        'arriba': self.analizar_arriba(),
+        'izquierda': self.analizar_izquierda(),
+        'derecha': self.analizar_derecha(),
+    }[direc]
+
+  def analizar_arriba(self):
+    self.cuadrante_analizado_arriba = False
+    for i in range(0, len(self.cuadrantes)):
+      if self.cuadrantes[i].posicion_x == self.nueva_posicion_x and self.cuadrantes[i].posicion_y == self.nueva_posicion_y-1:
+        print "analizado arriba"
+        self.cuadrante_analizado_arriba = True
+        return
+      #else:
+        #print "no analizado"
+        #return
+  def analizar_abajo(self):
+    self.cuadrante_analizado_abajo = False
+    for i in range(0, len(self.cuadrantes)):
+      if self.cuadrantes[i].posicion_x == self.nueva_posicion_x and self.cuadrantes[i].posicion_y == self.nueva_posicion_y+1:
+        print "analizado abajo"
+        self.cuadrante_analizado_abajo = True
+        return
+      #else:
+        #print self.cuadrante_analizado_abajo
+        #return
+  def analizar_derecha(self):
+    self.cuadrante_analizado_derecha = False
+    for i in range(0, len(self.cuadrantes)):
+      if self.cuadrantes[i].posicion_x == self.nueva_posicion_x+1 and self.cuadrantes[i].posicion_y == self.nueva_posicion_y:
+        print "analizado derecha"
+        self.cuadrante_analizado_derecha = True
+        return
+      #else:
+        #print "no analizado"
+        #return
+  def analizar_izquierda(self):
+    self.cuadrante_analizado_izquierda = False
+    for i in range(0, len(self.cuadrantes)):
+      if self.cuadrantes[i].posicion_x == self.nueva_posicion_x-1 and self.cuadrantes[i].posicion_y == self.nueva_posicion_y:
+        print "analizado izquierda"
+        self.cuadrante_analizado_izquierda = True
+        return
+      #else:
+        #print "no analizado"
+        #return
+      
+  def recorrer_contorno_interno(self):
+    self.analizar_cuadrante('izquierda')
+    if self.cuadrante_analizado_izquierda == False:
+        print "mover izquierda"
+        nueva_pos = self.moverse_izquierda()
+        self.posicion_destino_x = nueva_pos.rect.left
+        #self.encontro_pared_abajo = True
+        #self.encontro_pared_derecha = False
+        #self.comparar_coordenadas(self.posicion_actual_x,self.posicion_actual_y)
+        self.cargar_cuadrante(self.nueva_posicion_x, self.nueva_posicion_y)
+        #self.imprimir_cuadrantes()
+        return
+
+    self.analizar_cuadrante('abajo')
+    self.analizar_cuadrante('derecha')
+    if self.cuadrante_analizado_abajo == True and self.cuadrante_analizado_derecha == True:
+      print "mover izquierda"
+      nueva_pos = self.moverse_izquierda()
+      self.posicion_destino_x = nueva_pos.rect.left
+      #self.encontro_pared_abajo = True
+      #self.encontro_pared_derecha = False
+      #self.comparar_coordenadas(self.posicion_actual_x,self.posicion_actual_y)
+      self.cargar_cuadrante(self.nueva_posicion_x, self.nueva_posicion_y)
+      #self.imprimir_cuadrantes()
+      return
+
+    self.analizar_cuadrante('izquierda')
+    self.analizar_cuadrante('abajo')
+    if self.cuadrante_analizado_abajo == True and self.cuadrante_analizado_derecha == True:
+      print "mover arriba"
+      nueva_pos = self.moverse_arriba()
+      self.posicion_destino_y = nueva_pos.rect.top
+      #self.encontro_pared_abajo = True
+      #self.encontro_pared_derecha = False
+      #self.comparar_coordenadas(self.posicion_actual_x,self.posicion_actual_y)
+      self.cargar_cuadrante(self.nueva_posicion_x, self.nueva_posicion_y)
+      #self.imprimir_cuadrantes()
+      return
+
+    self.analizar_cuadrante('izquierda')    
+    self.analizar_cuadrante('arriba')
+    if self.cuadrante_analizado_abajo == True and self.cuadrante_analizado_derecha == True:
+      print "mover derecha"
+      nueva_pos = self.moverse_derecha()
+      self.posicion_destino_x = nueva_pos.rect.left
+      #self.encontro_pared_abajo = True
+      #self.encontro_pared_derecha = False
+      #self.comparar_coordenadas(self.posicion_actual_x,self.posicion_actual_y)
+      self.cargar_cuadrante(self.nueva_posicion_x, self.nueva_posicion_y)
+      #self.imprimir_cuadrantes()
+      return
+
+    self.analizar_cuadrante('arriba')
+    self.analizar_cuadrante('derecha')
+    if self.cuadrante_analizado_abajo == True and self.cuadrante_analizado_derecha == True:
+      print "mover abajo"
+      nueva_pos = self.moverse_abajo()
+      self.posicion_destino_y = nueva_pos.rect.top
+      #self.encontro_pared_abajo = True
+      #self.encontro_pared_derecha = False
+      #self.comparar_coordenadas(self.posicion_actual_x,self.posicion_actual_y)
+      self.cargar_cuadrante(self.nueva_posicion_x, self.nueva_posicion_y)
+      #self.imprimir_cuadrantes()
+      return
+    
+
+  def comparar_coordenadas(self, x, y):
+    if self.x_minimo > x:
+      self.x_minimo = x
+    else:
+      if self.x_maximo < x:
+        self.x_maximo = x
+
+    if self.y_minimo > y:
+      self.y_minimo = y
+    else:
+      if self.y_maximo < y:
+        self.y_maximo = y
+
+    print "x_minimo %d x_maximo %d y_minimo %d y_maximo %d" %(self.x_minimo, self.x_maximo, self.y_minimo, self.y_maximo)
+
+    
 
 
     
