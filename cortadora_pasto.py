@@ -56,14 +56,10 @@ while running:
   if cortadora.tiene_posicion_inicial == False:
     cortadora.detectar_posicion_inicial()
   else:
-    if cortadora.cuadrante_analizado_abajo == False:
-      if cortadora.busca_contorno == True:
-        cortadora.recorrer_contorno()
+    if cortadora.busca_contorno == True:
+      cortadora.recorrer_contorno()
       #if cortadora.esta_en_posicion_inicial() == True:
         #cortadora.buscar_nueva_posicion_inicial()
-    else:
-      cortadora.recorrer_contorno_interno()
-
 
   cortadora.mover()
 
